@@ -1,11 +1,11 @@
-import {AddEntity} from "../types";
+import {AdEntity, NewAdEntity} from "../types";
 import {ValidationError} from "../utils/errors";
+import {pool} from "../utils/db";
+import {FieldPacket} from "mysql2";
 
-interface NewAddEntity extends Omit<AddEntity, 'id'> {
-    id?: string;
-}
+type AdRecordResults = [AdEntity[], FieldPacket[]];
 
-export class AdRecord implements AddEntity {
+export class AdRecord implements AdEntity {
     id: string;
     name: string;
     description: string;
@@ -14,7 +14,7 @@ export class AdRecord implements AddEntity {
     lat: number;
     lon: number;
 
-    constructor(obj: NewAddEntity) {
+    constructor(obj: NewAdEntity) {
         if (!obj.name|| obj.name.length > 100) {
             throw new ValidationError('Name of the ad cannot be empty and must have less than 100 characters.')
         }
@@ -34,6 +34,7 @@ export class AdRecord implements AddEntity {
             throw new ValidationError('Cannot locate the ad.')
         }
 
+        this.id = obj.id;
         this.name = obj.name;
         this.description = obj.description;
         this.price = obj.price;
@@ -45,4 +46,10 @@ export class AdRecord implements AddEntity {
 
     }
 
+    static async getOne(id: string): Promise<AdRecord> | null {
+        const [results] = await pool.execute("SELECT * FROM `ads` WHERE id = :id", {
+            id,
+        }) as AdRecordResults;
+        return results.length === 0 ? null : new AdRecord(results[0])
+    }
 }
