@@ -3,6 +3,7 @@ import cors from "cors";
 import "express-async-errors";
 import {handleError, ValidationError} from "./utils/errors";
 import rateLimit from "express-rate-limit";
+import {adRouter} from "./routers/ad.router";
 
 const app = express();
 app.use(cors({
@@ -15,6 +16,8 @@ app.use(rateLimit({
 }))
 
 //routes...
+app.use('/ad', adRouter);
+
 app.get('/', async (req, res) => {
     throw new ValidationError('Daamn!');
 });
