@@ -18,7 +18,7 @@ app.use(rateLimit({
 
 //routes...
 const router = Router();
-router.use('/ad', adRouter);
+router.use('/adpet', adRouter);
 app.use('/api', router);
 
 app.get('/', async (req, res) => {
